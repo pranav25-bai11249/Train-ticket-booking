@@ -2,370 +2,420 @@ import java.util.*;
 
 public class TrainTicketBooking {
 
-    static class Train {
-        String trainNumber, trainName, source, destination;
-        String departureTime, arrivalTime;
-        int    totalSeats, availableSeats;
-        double farePerSeat;
+    static Scanner sc = new Scanner(System.in);
 
-        Train(String trainNumber, String trainName, String source, String destination,
-              String departureTime, String arrivalTime, int totalSeats, double farePerSeat) {
-            this.trainNumber    = trainNumber;
-            this.trainName      = trainName;
-            this.source         = source;
-            this.destination    = destination;
-            this.departureTime  = departureTime;
-            this.arrivalTime    = arrivalTime;
-            this.totalSeats     = totalSeats;
-            this.availableSeats = totalSeats;
-            this.farePerSeat    = farePerSeat;
-        }
-    }
+    static String[] trainNo = {
+        "12301", "12951", "12002", "12627",
+        "12621", "12303", "12309", "22691"
+    };
 
-    static class Passenger {
-        String name, gender;
-        int    age;
+    static String[] trainName = {
+        "Rajdhani Express",
+        "Mumbai Rajdhani",
+        "Shatabdi Express",
+        "Karnataka Express",
+        "Tamil Nadu Express",
+        "Poorva Express",
+        "Rajendra Nagar Exp",
+        "Rajdhani Express"
+    };
 
-        Passenger(String name, int age, String gender) {
-            this.name   = name;
-            this.age    = age;
-            this.gender = gender;
-        }
-    }
+    static String[] from = {
+        "New Delhi", "Mumbai", "New Delhi", "New Delhi",
+        "New Delhi", "Howrah", "Patna", "Bengaluru"
+    };
+
+    static String[] to = {
+        "Mumbai", "New Delhi", "Bhopal", "Bengaluru",
+        "Chennai", "New Delhi", "Mumbai", "New Delhi"
+    };
+
+    static String[] departure = {
+        "16:55", "17:40", "06:00", "21:30",
+        "22:30", "08:05", "13:45", "20:00"
+    };
+
+    static String[] arrival = {
+        "08:35+1", "09:55+1", "14:05", "05:10+2",
+        "07:40+2", "20:40+1", "08:20+2", "05:50+2"
+    };
+
+    static int[] seats = {
+        120, 120, 80, 100, 100, 90, 80, 100
+    };
+
+    static double[] fare = {
+        1500, 1500, 900, 1800, 1750, 1200, 1350, 1900
+    };
+
+    static ArrayList<Booking> bookings = new ArrayList<>();
+
+    static int bookingCounter = 1000;
 
     static class Booking {
-        static int counter = 1000;
+        String id;
+        int trainIndex;
+        String date;
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> ages = new ArrayList<>();
+        ArrayList<String> genders = new ArrayList<>();
+        double totalFare;
+        boolean cancelled;
 
-        String           bookingId, trainNumber, trainName;
-        String           source, destination, journeyDate, status;
-        List<Passenger>  passengers;
-        double           totalFare;
-
-        Booking(String trainNumber, String trainName, String source,
-                String destination, String journeyDate,
-                List<Passenger> passengers, double totalFare) {
-            this.bookingId   = "BK" + (++counter);
-            this.trainNumber = trainNumber;
-            this.trainName   = trainName;
-            this.source      = source;
-            this.destination = destination;
-            this.journeyDate = journeyDate;
-            this.passengers  = passengers;
-            this.totalFare   = totalFare;
-            this.status      = "CONFIRMED";
+        Booking(int trainIndex, String date) {
+            this.id = "BK" + (++bookingCounter);
+            this.trainIndex = trainIndex;
+            this.date = date;
+            this.cancelled = false;
         }
     }
 
-    static List<Train>   trains   = new ArrayList<>();
-    static List<Booking> bookings = new ArrayList<>();
-    static Scanner       sc       = new Scanner(System.in);
+    public static void showTrains() {
 
-    static void initTrains() {
-        trains.add(new Train("12301", "Rajdhani Express",   "New Delhi", "Mumbai",    "16:55", "08:35+1", 120, 1500));
-        trains.add(new Train("12951", "Mumbai Rajdhani",    "Mumbai",    "New Delhi", "17:40", "09:55+1", 120, 1500));
-        trains.add(new Train("12002", "Shatabdi Express",   "New Delhi", "Bhopal",    "06:00", "14:05",    80,  900));
-        trains.add(new Train("12627", "Karnataka Express",  "New Delhi", "Bengaluru", "21:30", "05:10+2", 100, 1800));
-        trains.add(new Train("12621", "Tamil Nadu Express", "New Delhi", "Chennai",   "22:30", "07:40+2", 100, 1750));
-        trains.add(new Train("12303", "Poorva Express",     "Howrah",    "New Delhi", "08:05", "20:40+1",  90, 1200));
-        trains.add(new Train("12309", "Rajendra Nagar Exp","Patna",     "Mumbai",    "13:45", "08:20+2",  80, 1350));
-        trains.add(new Train("22691", "Rajdhani Express",  "Bengaluru", "New Delhi", "20:00", "05:50+2", 100, 1900));
+        System.out.println("\n---------------- AVAILABLE TRAINS ----------------");
+
+        for (int i = 0; i < trainNo.length; i++) {
+            System.out.println("Train Number : " + trainNo[i]);
+            System.out.println("Train Name   : " + trainName[i]);
+            System.out.println("Route        : " + from[i] + " -> " + to[i]);
+            System.out.println("Departure    : " + departure[i]);
+            System.out.println("Arrival      : " + arrival[i]);
+            System.out.println("Seats        : " + seats[i]);
+            System.out.println("Fare         : Rs." + fare[i]);
+            System.out.println("-----------------------------------------------");
+        }
     }
 
-    static void printLine() {
-        System.out.println("--------------------------------------------------" +
-                           "------------------------------");
-    }
+    public static void searchTrain() {
 
-    static void printHeader(String title) {
-        System.out.println();
-        printLine();
-        System.out.println("   " + title);
-        printLine();
-    }
+        System.out.println("\n---------------- SEARCH TRAIN ----------------");
 
-    static String readLine(String prompt) {
-        System.out.print(prompt);
-        return sc.nextLine().trim();
-    }
+        System.out.print("Enter starting city: ");
+        String start = sc.nextLine();
 
-    static int readInt(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String input = sc.nextLine().trim();
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("  Please enter a valid number.");
+        System.out.print("Enter destination city: ");
+        String destination = sc.nextLine();
+
+        boolean found = false;
+
+        for (int i = 0; i < trainNo.length; i++) {
+
+            if (from[i].equalsIgnoreCase(start)
+                    && to[i].equalsIgnoreCase(destination)) {
+
+                found = true;
+
+                System.out.println("\nTrain Number : " + trainNo[i]);
+                System.out.println("Train Name   : " + trainName[i]);
+                System.out.println("Departure    : " + departure[i]);
+                System.out.println("Arrival      : " + arrival[i]);
+                System.out.println("Seats        : " + seats[i]);
+                System.out.println("Fare         : Rs." + fare[i]);
             }
         }
+
+        if (!found) {
+            System.out.println("No train found for this route.");
+        }
     }
 
-    static boolean isValidDate(String date) {
-        if (date == null || !date.matches("\\d{2}-\\d{2}-\\d{4}")) return false;
+    public static void bookTicket() {
+
+        showTrains();
+
+        System.out.print("\nEnter train number: ");
+        String number = sc.nextLine();
+
+        int index = -1;
+
+        for (int i = 0; i < trainNo.length; i++) {
+            if (trainNo[i].equals(number)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            System.out.println("Train not found.");
+            return;
+        }
+
+        if (seats[index] == 0) {
+            System.out.println("No seats available.");
+            return;
+        }
+
+        System.out.print("Enter journey date (dd-MM-yyyy): ");
+        String date = sc.nextLine();
+
+        if (!validDate(date)) {
+            System.out.println("Invalid date.");
+            return;
+        }
+
+        System.out.print("How many passengers? ");
+        int count = sc.nextInt();
+        sc.nextLine();
+
+        if (count < 1 || count > seats[index]) {
+            System.out.println("Invalid number of passengers.");
+            return;
+        }
+
+        Booking b = new Booking(index, date);
+
+        for (int i = 0; i < count; i++) {
+
+            System.out.println("\nPassenger " + (i + 1));
+
+            System.out.print("Name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Age: ");
+            int age = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("Gender (M/F/O): ");
+            String gender = sc.nextLine();
+
+            b.names.add(name);
+            b.ages.add(age);
+            b.genders.add(gender);
+        }
+
+        b.totalFare = count * fare[index];
+
+        System.out.println("\n------------- BOOKING DETAILS -------------");
+        System.out.println("Train       : " + trainNo[index] + " - " + trainName[index]);
+        System.out.println("Route       : " + from[index] + " -> " + to[index]);
+        System.out.println("Date        : " + date);
+        System.out.println("Passengers  : " + count);
+        System.out.println("Total Fare  : Rs." + b.totalFare);
+
+        System.out.print("Confirm booking? (Y/N): ");
+        String answer = sc.nextLine();
+
+        if (answer.equalsIgnoreCase("Y")) {
+
+            seats[index] = seats[index] - count;
+            bookings.add(b);
+
+            System.out.println("\nBooking successful!");
+            System.out.println("Your Booking ID is: " + b.id);
+
+        } else {
+            System.out.println("Booking cancelled.");
+        }
+    }
+
+    public static void viewBooking() {
+
+        System.out.print("\nEnter booking ID: ");
+        String id = sc.nextLine();
+
+        Booking b = findBooking(id);
+
+        if (b == null) {
+            System.out.println("Booking not found.");
+            return;
+        }
+
+        System.out.println("\n------------- BOOKING -------------");
+        System.out.println("Booking ID : " + b.id);
+        System.out.println("Status     : " +
+                (b.cancelled ? "CANCELLED" : "CONFIRMED"));
+
+        System.out.println("Train      : " +
+                trainNo[b.trainIndex] + " - " +
+                trainName[b.trainIndex]);
+
+        System.out.println("Route      : " +
+                from[b.trainIndex] + " -> " +
+                to[b.trainIndex]);
+
+        System.out.println("Date       : " + b.date);
+
+        System.out.println("\nPassengers:");
+
+        for (int i = 0; i < b.names.size(); i++) {
+            System.out.println(
+                    (i + 1) + ". " +
+                    b.names.get(i) + "  Age: " +
+                    b.ages.get(i) + "  Gender: " +
+                    b.genders.get(i)
+            );
+        }
+
+        System.out.println("Total Fare : Rs." + b.totalFare);
+    }
+
+    public static void cancelBooking() {
+
+        System.out.print("\nEnter booking ID: ");
+        String id = sc.nextLine();
+
+        Booking b = findBooking(id);
+
+        if (b == null) {
+            System.out.println("Booking not found.");
+            return;
+        }
+
+        if (b.cancelled) {
+            System.out.println("Booking is already cancelled.");
+            return;
+        }
+
+        System.out.println("Booking amount: Rs." + b.totalFare);
+        System.out.println("Refund amount: Rs." + (b.totalFare * 0.75));
+
+        System.out.print("Do you want to cancel? (Y/N): ");
+        String answer = sc.nextLine();
+
+        if (answer.equalsIgnoreCase("Y")) {
+
+            b.cancelled = true;
+
+            seats[b.trainIndex] =
+                    seats[b.trainIndex] + b.names.size();
+
+            System.out.println("Booking cancelled.");
+            System.out.println("Refund: Rs." + (b.totalFare * 0.75));
+
+        } else {
+            System.out.println("Cancellation stopped.");
+        }
+    }
+
+    public static void showAllBookings() {
+
+        if (bookings.size() == 0) {
+            System.out.println("\nNo bookings available.");
+            return;
+        }
+
+        System.out.println("\n---------------- ALL BOOKINGS ----------------");
+
+        for (Booking b : bookings) {
+
+            System.out.println("Booking ID : " + b.id);
+            System.out.println("Train      : " + trainName[b.trainIndex]);
+            System.out.println("Date       : " + b.date);
+            System.out.println("Passengers : " + b.names.size());
+            System.out.println("Status     : " +
+                    (b.cancelled ? "CANCELLED" : "CONFIRMED"));
+            System.out.println("Fare       : Rs." + b.totalFare);
+            System.out.println("---------------------------------------------");
+        }
+    }
+
+    public static Booking findBooking(String id) {
+
+        for (Booking b : bookings) {
+            if (b.id.equalsIgnoreCase(id)) {
+                return b;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean validDate(String date) {
+
+        if (!date.matches("\\d{2}-\\d{2}-\\d{4}")) {
+            return false;
+        }
+
         String[] parts = date.split("-");
-        int dd   = Integer.parseInt(parts[0]);
-        int mm   = Integer.parseInt(parts[1]) - 1; 
-        int yyyy = Integer.parseInt(parts[2]);
 
-        if (mm < 0 || mm > 11 || dd < 1 || dd > 31) return false;
+        int day = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int year = Integer.parseInt(parts[2]);
 
-        Calendar input = Calendar.getInstance();
-        input.setLenient(false);
+        if (month < 1 || month > 12) {
+            return false;
+        }
+
+        if (day < 1 || day > 31) {
+            return false;
+        }
+
+        Calendar c = Calendar.getInstance();
+        c.setLenient(false);
+
         try {
-            input.set(yyyy, mm, dd, 0, 0, 0);
-            input.getTime(); 
+            c.set(year, month - 1, day);
+            c.getTime();
         } catch (Exception e) {
             return false;
         }
 
         Calendar today = Calendar.getInstance();
+
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
 
-        return !input.before(today);
+        return !c.before(today);
     }
-
-    static Train findTrain(String trainNumber) {
-        for (Train t : trains)
-            if (t.trainNumber.equalsIgnoreCase(trainNumber)) return t;
-        return null;
-    }
-
-    static Booking findBooking(String bookingId) {
-        for (Booking b : bookings)
-            if (b.bookingId.equalsIgnoreCase(bookingId)) return b;
-        return null;
-    }
-
-    static void viewAllTrains() {
-        printHeader("AVAILABLE TRAINS");
-        System.out.printf("%-8s  %-22s  %-12s  %-12s  %-8s  %-9s  %-6s  %s%n",
-                "Train No", "Name", "From", "To", "Departs", "Arrives", "Seats", "Fare");
-        printLine();
-        for (Train t : trains) {
-            System.out.printf("%-8s  %-22s  %-12s  %-12s  %-8s  %-9s  %-6d  Rs.%.0f%n",
-                    t.trainNumber, t.trainName, t.source, t.destination,
-                    t.departureTime, t.arrivalTime, t.availableSeats, t.farePerSeat);
-        }
-    }
-
-    static void searchTrains() {
-        printHeader("SEARCH TRAINS");
-        String from = readLine("  From (city): ").toLowerCase();
-        String to   = readLine("  To   (city): ").toLowerCase();
-
-        List<Train> results = new ArrayList<>();
-        for (Train t : trains)
-            if (t.source.toLowerCase().contains(from) &&
-                t.destination.toLowerCase().contains(to))
-                results.add(t);
-
-        if (results.isEmpty()) {
-            System.out.println("\n  No trains found for this route.");
-            return;
-        }
-
-        System.out.println("\n  Found " + results.size() + " train(s):\n");
-        System.out.printf("  %-8s  %-22s  %-8s  %-9s  %-6s  %s%n",
-                "Train No", "Name", "Departs", "Arrives", "Seats", "Fare");
-        System.out.println("  " + "-".repeat(72));
-        for (Train t : results) {
-            System.out.printf("  %-8s  %-22s  %-8s  %-9s  %-6d  Rs.%.0f%n",
-                    t.trainNumber, t.trainName, t.departureTime,
-                    t.arrivalTime, t.availableSeats, t.farePerSeat);
-        }
-    }
-
-    static void bookTicket() {
-        printHeader("BOOK TICKET");
-        viewAllTrains();
-
-        String trainNo = readLine("\n  Enter Train Number: ");
-        Train train = findTrain(trainNo);
-
-        if (train == null) {
-            System.out.println("  Train not found."); return;
-        }
-        if (train.availableSeats == 0) {
-            System.out.println("  No seats available on this train."); return;
-        }
-
-        String date;
-        while (true) {
-            date = readLine("  Journey Date (dd-MM-yyyy): ");
-            if (isValidDate(date)) break;
-            System.out.println("  Invalid date or past date. Format: dd-MM-yyyy");
-        }
-
-        int numPassengers;
-        while (true) {
-            numPassengers = readInt("  Number of Passengers (1-" + train.availableSeats + "): ");
-            if (numPassengers >= 1 && numPassengers <= train.availableSeats) break;
-            System.out.println("  Enter a number between 1 and " + train.availableSeats);
-        }
-
-        List<Passenger> passengers = new ArrayList<>();
-        for (int i = 1; i <= numPassengers; i++) {
-            System.out.println("\n  -- Passenger " + i + " --");
-            String name = readLine("    Name   : ");
-            int age;
-            while (true) {
-                age = readInt("    Age    : ");
-                if (age > 0 && age <= 120) break;
-                System.out.println("    Enter a valid age (1-120).");
-            }
-            String gender;
-            while (true) {
-                gender = readLine("    Gender (M/F/O): ").toUpperCase();
-                if (gender.equals("M") || gender.equals("F") || gender.equals("O")) break;
-                System.out.println("    Enter M, F, or O.");
-            }
-            passengers.add(new Passenger(name, age, gender));
-        }
-
-        double totalFare = numPassengers * train.farePerSeat;
-        System.out.println();
-        printLine();
-        System.out.println("  BOOKING SUMMARY");
-        printLine();
-        System.out.println("  Train      : " + train.trainNumber + " - " + train.trainName);
-        System.out.println("  Route      : " + train.source + " -> " + train.destination);
-        System.out.println("  Date       : " + date);
-        System.out.println("  Departure  : " + train.departureTime + "  |  Arrival: " + train.arrivalTime);
-        System.out.println("  Passengers : " + numPassengers);
-        System.out.printf ("  Total Fare : Rs.%.2f%n", totalFare);
-        printLine();
-
-        String confirm = readLine("  Confirm booking? (Y/N): ");
-        if (!confirm.equalsIgnoreCase("Y")) {
-            System.out.println("  Booking cancelled."); return;
-        }
-
-        Booking booking = new Booking(train.trainNumber, train.trainName,
-                train.source, train.destination, date, passengers, totalFare);
-        bookings.add(booking);
-        train.availableSeats -= numPassengers;
-
-        System.out.println("\n  Booking CONFIRMED!");
-        System.out.println("  Your Booking ID: " + booking.bookingId +
-                           "  (note this for cancellation / enquiry)");
-    }
-
-    static void viewBooking() {
-        printHeader("VIEW BOOKING");
-        String id = readLine("  Enter Booking ID: ");
-        Booking b = findBooking(id);
-
-        if (b == null) {
-            System.out.println("  Booking not found."); return;
-        }
-
-        System.out.println();
-        printLine();
-        System.out.println("  Booking ID   : " + b.bookingId);
-        System.out.println("  Status       : " + b.status);
-        System.out.println("  Train        : " + b.trainNumber + " - " + b.trainName);
-        System.out.println("  Route        : " + b.source + " -> " + b.destination);
-        System.out.println("  Journey Date : " + b.journeyDate);
-        System.out.println("  Passengers   : " + b.passengers.size());
-        System.out.println();
-        System.out.printf("  %-20s  %-5s  %s%n", "Name", "Age", "Gender");
-        System.out.println("  " + "-".repeat(35));
-        for (Passenger p : b.passengers) {
-            String g = p.gender.equals("M") ? "Male" : p.gender.equals("F") ? "Female" : "Other";
-            System.out.printf("  %-20s  %-5d  %s%n", p.name, p.age, g);
-        }
-        System.out.println();
-        System.out.printf("  Total Fare   : Rs.%.2f%n", b.totalFare);
-        printLine();
-    }
-
-    static void cancelBooking() {
-        printHeader("CANCEL BOOKING");
-        String id = readLine("  Enter Booking ID to cancel: ");
-        Booking b = findBooking(id);
-
-        if (b == null) {
-            System.out.println("  Booking not found."); return;
-        }
-        if (b.status.equals("CANCELLED")) {
-            System.out.println("  This booking is already cancelled."); return;
-        }
-
-        System.out.println();
-        System.out.println("  Booking : " + b.bookingId + " | Train: " + b.trainName +
-                           " | Route: " + b.source + " -> " + b.destination +
-                           " | Date: " + b.journeyDate);
-        System.out.printf ("  Refund  : Rs.%.2f (75%% of Rs.%.2f)%n",
-                b.totalFare * 0.75, b.totalFare);
-
-        String confirm = readLine("  Proceed with cancellation? (Y/N): ");
-        if (!confirm.equalsIgnoreCase("Y")) {
-            System.out.println("  Cancellation aborted."); return;
-        }
-
-        b.status = "CANCELLED";
-        Train t = findTrain(b.trainNumber);
-        if (t != null) t.availableSeats += b.passengers.size();
-
-        System.out.printf("%n  Booking %s cancelled. Refund of Rs.%.2f will be processed.%n",
-                b.bookingId, b.totalFare * 0.75);
-    }
-
-    static void viewAllBookings() {
-        printHeader("ALL BOOKINGS");
-        if (bookings.isEmpty()) {
-            System.out.println("  No bookings yet."); return;
-        }
-        System.out.printf("  %-8s  %-10s  %-22s  %-12s  %-8s  %s%n",
-                "Book ID", "Status", "Train", "Date", "Pax", "Fare");
-        System.out.println("  " + "-".repeat(78));
-        for (Booking b : bookings) {
-            System.out.printf("  %-8s  %-10s  %-22s  %-12s  %-8d  Rs.%.0f%n",
-                    b.bookingId, b.status, b.trainName,
-                    b.journeyDate, b.passengers.size(), b.totalFare);
-        }
-    }
-
 
     public static void main(String[] args) {
-        initTrains();
-
-        System.out.println();
-        System.out.println("  ==========================================");
-        System.out.println("    INDIAN RAILWAY TICKET BOOKING SYSTEM   ");
-        System.out.println("  ==========================================");
 
         while (true) {
-            System.out.println();
-            System.out.println("  MAIN MENU");
-            System.out.println("  ---------------------------------");
-            System.out.println("  1. View All Trains");
-            System.out.println("  2. Search Trains by Route");
-            System.out.println("  3. Book a Ticket");
-            System.out.println("  4. View Booking Details");
-            System.out.println("  5. Cancel a Booking");
-            System.out.println("  6. View All Bookings");
-            System.out.println("  7. Exit");
-            System.out.println("  ---------------------------------");
 
-            int choice = readInt("  Choose (1-7): ");
+            System.out.println("\n====================================");
+            System.out.println("    TRAIN TICKET BOOKING SYSTEM");
+            System.out.println("====================================");
 
-            if      (choice == 1) viewAllTrains();
-            else if (choice == 2) searchTrains();
-            else if (choice == 3) bookTicket();
-            else if (choice == 4) viewBooking();
-            else if (choice == 5) cancelBooking();
-            else if (choice == 6) viewAllBookings();
+            System.out.println("1. View all trains");
+            System.out.println("2. Search train");
+            System.out.println("3. Book ticket");
+            System.out.println("4. View booking");
+            System.out.println("5. Cancel booking");
+            System.out.println("6. View all bookings");
+            System.out.println("7. Exit");
+
+            System.out.print("Enter your choice: ");
+
+            int choice;
+
+            try {
+                choice = sc.nextInt();
+                sc.nextLine();
+            } catch (Exception e) {
+                System.out.println("Please enter a number.");
+                sc.nextLine();
+                continue;
+            }
+
+            if (choice == 1) {
+                showTrains();
+            } 
+            else if (choice == 2) {
+                searchTrain();
+            } 
+            else if (choice == 3) {
+                bookTicket();
+            } 
+            else if (choice == 4) {
+                viewBooking();
+            } 
+            else if (choice == 5) {
+                cancelBooking();
+            } 
+            else if (choice == 6) {
+                showAllBookings();
+            } 
             else if (choice == 7) {
-                System.out.println("\n  Thank you! Goodbye.");
-                sc.close();
-                System.exit(0);
-            } else {
-                System.out.println("  Invalid choice. Enter 1-7.");
+                System.out.println("Thank you for using the system.");
+                break;
+            } 
+            else {
+                System.out.println("Invalid choice.");
             }
         }
+
+        sc.close();
     }
 }
