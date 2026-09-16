@@ -108,10 +108,3 @@ Try booking a ticket and enter `31-02-2026` as the date. The program should reje
 Select option `6` to see a summary of everything booked so far in the session, including the one we cancelled. The status column should show `CONFIRMED` or `CANCELLED` accordingly.
 
 ---
-
-## Author
-
-Pranav  
-B.Tech Computer Science  
-[Your College Name]  
-[Academic Year]
